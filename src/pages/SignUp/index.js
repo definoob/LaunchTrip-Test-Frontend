@@ -1,55 +1,59 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import LoadingOverlay from "react-loading-overlay";
+import { setIsLoading, requestSignup } from "../../redux/actions";
 
-class SignUpForm extends Component {
-  constructor() {
-    super();
+const SignUpForm = (props) => {
+  const [state, setState] = useState({
+    name: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
+  });
 
-    this.state = {
-      email: "",
-      password: "",
-      name: "",
-      hasAgreed: false,
-    };
+  const handleChange = (e) =>
+    setState((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleChange(e) {
-    let target = e.target;
-    let value = target.type === "checkbox" ? target.checked : target.value;
-    let name = target.name;
-
-    this.setState({
-      [name]: value,
-    });
-  }
-
-  handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    props.setIsLoading(true);
+    props.requestSignup(
+      state.name,
+      state.email,
+      state.password,
+      state.passwordConfirm
+    );
+  };
 
-    console.log("The form was submitted with the following data:");
-    console.log(this.state);
-  }
-
-  render() {
-    return (
+  return (
+    <LoadingOverlay
+      active={props.isLoading}
+      spinner
+      styles={{
+        wrapper: {
+          height: "100%",
+        },
+      }}
+    >
       <div className="FormCenter">
-        <form onSubmit={this.handleSubmit} className="FormFields">
+        <form onSubmit={handleSubmit} className="FormFields">
           <div className="FormField">
             <label className="FormField__Label" htmlFor="name">
               Full Name
             </label>
             <input
               type="text"
-              id="name"
               className="FormField__Input"
               placeholder="Enter your full name"
               name="name"
-              value={this.state.name}
-              onChange={this.handleChange}
+              value={state.name}
+              onChange={handleChange}
             />
+            <p className="FormField__Label_Error">{props.errMsg.name}</p>
           </div>
           <div className="FormField">
             <label className="FormField__Label" htmlFor="email">
@@ -57,13 +61,13 @@ class SignUpForm extends Component {
             </label>
             <input
               type="email"
-              id="email"
               className="FormField__Input"
               placeholder="Enter your email"
               name="email"
-              value={this.state.email}
-              onChange={this.handleChange}
+              value={state.email}
+              onChange={handleChange}
             />
+            <p className="FormField__Label_Error">{props.errMsg.email}</p>
           </div>
           <div className="FormField">
             <label className="FormField__Label" htmlFor="password">
@@ -71,40 +75,51 @@ class SignUpForm extends Component {
             </label>
             <input
               type="password"
-              id="password"
               className="FormField__Input"
               placeholder="Enter your password"
               name="password"
-              value={this.state.password}
-              onChange={this.handleChange}
+              value={state.password}
+              onChange={handleChange}
             />
+            <p className="FormField__Label_Error">{props.errMsg.password}</p>
           </div>
           <div className="FormField">
-            <label className="FormField__CheckboxLabel">
-              <input
-                className="FormField__Checkbox"
-                type="checkbox"
-                name="hasAgreed"
-                value={this.state.hasAgreed}
-                onChange={this.handleChange}
-              />{" "}
-              I agree all statements in{" "}
-              <a href="/" className="FormField__TermsLink">
-                terms of service
-              </a>
+            <label className="FormField__Label" htmlFor="password">
+              Password Confirmation
             </label>
+            <input
+              type="password"
+              className="FormField__Input"
+              placeholder="Enter your password again"
+              name="passwordConfirm"
+              value={state.passwordConfirm}
+              onChange={handleChange}
+            />
+            <p className="FormField__Label_Error">{props.errMsg.confirm}</p>
           </div>
-
           <div className="FormField">
-            <button className="FormField__Button mr-20">Sign Up</button>{" "}
+            <button className="FormField__Button mr-20">Sign Up</button>
             <Link to="/sign-in" className="FormField__Link">
               I'm already member
             </Link>
           </div>
         </form>
       </div>
-    );
-  }
-}
+    </LoadingOverlay>
+  );
+};
 
-export default SignUpForm;
+const mapStateToProps = (state) => ({
+  isLoading: state.usersReducer.isLoading,
+  loggedIn: state.usersReducer.loggedIn,
+  error: state.usersReducer.error,
+  errMsg: state.usersReducer.errMsg,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  requestSignup: (username, email, password, password_confirmation) =>
+    dispatch(requestSignup(username, email, password, password_confirmation)),
+  setIsLoading: (isLoading) => dispatch(setIsLoading(isLoading)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUpForm);
