@@ -1,40 +1,36 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { connect } from "react-redux";
+import LoadingOverlay from "react-loading-overlay";
+import Header from "../Header";
+import { setIsLoading, requestLogin } from "../../redux/actions";
 
-class SignInForm extends Component {
-  constructor() {
-    super();
+const SignInForm = (props) => {
+  const history = useHistory();
+  const [state, setState] = useState({
+    email: "",
+    password: "",
+  });
 
-    this.state = {
-      email: "",
-      password: "",
-    };
+  useEffect(() => {
+    if (props.loggedIn) {
+      history.push("/main");
+    }
+  }, [history, props.loggedIn]);
 
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+  const handleChange = (e) =>
+    setState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  handleChange(e) {
-    let target = e.target;
-    let value = target.type === "checkbox" ? target.checked : target.value;
-    let name = target.name;
-
-    this.setState({
-      [name]: value,
-    });
-  }
-
-  handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    props.setIsLoading(true);
+    props.requestLogin(state.email, state.password);
+  };
 
-    console.log("The form was submitted with the following data:");
-    console.log(this.state);
-  }
-
-  render() {
+  const getFormContainer = () => {
     return (
       <div className="FormCenter">
-        <form onSubmit={this.handleSubmit} className="FormFields">
+        <form onSubmit={handleSubmit} className="FormFields">
           <div className="FormField">
             <label className="FormField__Label" htmlFor="email">
               E-Mail Address
@@ -45,11 +41,10 @@ class SignInForm extends Component {
               className="FormField__Input"
               placeholder="Enter your email"
               name="email"
-              value={this.state.email}
-              onChange={this.handleChange}
+              value={state.email}
+              onChange={handleChange}
             />
           </div>
-
           <div className="FormField">
             <label className="FormField__Label" htmlFor="password">
               Password
@@ -60,13 +55,12 @@ class SignInForm extends Component {
               className="FormField__Input"
               placeholder="Enter your password"
               name="password"
-              value={this.state.password}
-              onChange={this.handleChange}
+              value={state.password}
+              onChange={handleChange}
             />
           </div>
-
           <div className="FormField">
-            <button className="FormField__Button mr-20">Sign In</button>{" "}
+            <button className="FormField__Button mr-20">Sign In</button>
             <Link to="/" className="FormField__Link">
               Create an account
             </Link>
@@ -74,7 +68,38 @@ class SignInForm extends Component {
         </form>
       </div>
     );
-  }
-}
+  };
+  return (
+    <div className="App">
+      <div className="App__Aside" />
+      <div className="App__Form">
+        <Header />
+        <LoadingOverlay
+          active={props.isLoading}
+          spinner
+          styles={{
+            wrapper: {
+              height: "100%",
+            },
+          }}
+        >
+          {getFormContainer()}
+        </LoadingOverlay>
+      </div>
+    </div>
+  );
+};
 
-export default SignInForm;
+const mapStateToProps = (state) => ({
+  isLoading: state.usersReducer.isLoading,
+  loggedIn: state.usersReducer.loggedIn,
+  error: state.usersReducer.error,
+  errMsg: state.usersReducer.errMsg,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  setIsLoading: (isLoading) => dispatch(setIsLoading(isLoading)),
+  requestLogin: (email, password) => dispatch(requestLogin(email, password)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignInForm);

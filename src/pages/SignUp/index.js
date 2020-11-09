@@ -1,16 +1,24 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useHistory, Link } from "react-router-dom";
 import { connect } from "react-redux";
 import LoadingOverlay from "react-loading-overlay";
 import { setIsLoading, requestSignup } from "../../redux/actions";
+import Header from "../Header";
 
 const SignUpForm = (props) => {
+  const history = useHistory();
   const [state, setState] = useState({
     name: "",
     email: "",
     password: "",
     passwordConfirm: "",
   });
+
+  useEffect(() => {
+    if (props.loggedIn) {
+      history.push("/main");
+    }
+  }, [history, props.loggedIn]);
 
   const handleChange = (e) =>
     setState((prev) => ({
@@ -29,16 +37,8 @@ const SignUpForm = (props) => {
     );
   };
 
-  return (
-    <LoadingOverlay
-      active={props.isLoading}
-      spinner
-      styles={{
-        wrapper: {
-          height: "100%",
-        },
-      }}
-    >
+  const getFormContainer = () => {
+    return (
       <div className="FormCenter">
         <form onSubmit={handleSubmit} className="FormFields">
           <div className="FormField">
@@ -105,7 +105,27 @@ const SignUpForm = (props) => {
           </div>
         </form>
       </div>
-    </LoadingOverlay>
+    );
+  };
+
+  return (
+    <div className="App">
+      <div className="App__Aside" />
+      <div className="App__Form">
+        <Header />
+        <LoadingOverlay
+          active={props.isLoading}
+          spinner
+          styles={{
+            wrapper: {
+              height: "100%",
+            },
+          }}
+        >
+          {getFormContainer()}
+        </LoadingOverlay>
+      </div>
+    </div>
   );
 };
 

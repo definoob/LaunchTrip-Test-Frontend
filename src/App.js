@@ -1,28 +1,26 @@
 import React from "react";
-import { Provider } from "react-redux";
+import { connect } from "react-redux";
 import { BrowserRouter, Route } from "react-router-dom";
-import store from "./redux/store";
+import PrivateRoute from "./PrivateRoute";
+
+import Main from "./pages/Main";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-import Header from "./pages/Header";
 
 import "./App.css";
 
-const App = () => {
+const App = (props) => {
   return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <div className="App">
-          <div className="App__Aside" />
-          <div className="App__Form">
-            <Header />
-            <Route exact path="/" component={SignUp} />
-            <Route path="/sign-in" component={SignIn} />
-          </div>
-        </div>
-      </BrowserRouter>
-    </Provider>
+    <BrowserRouter>
+      <PrivateRoute exact path="/main" component={Main} />
+      <Route exact path="/" component={SignUp} />
+      <Route exact path="/sign-in" component={SignIn} />
+    </BrowserRouter>
   );
 };
 
-export default App;
+const mapStateToProps = (state) => ({
+  loggedIn: state.usersReducer.loggedIn,
+});
+
+export default connect(mapStateToProps)(App);

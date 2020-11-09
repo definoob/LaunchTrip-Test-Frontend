@@ -15,9 +15,32 @@ export function signup(name, email, password, password_confirmation) {
       password_confirmation,
     },
   })
-    .then(() => ({ error: false }))
+    .then((response) => {
+      return { error: false, body: response.data.result };
+    })
     .catch((e) => ({
       error: true,
       errMsg: e.response.data,
     }));
+}
+
+export function login(email, password) {
+  return axios({
+    method: "POST",
+    url: baseURL + "signin",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      email,
+      password,
+    },
+  })
+    .then((response) => {
+      console.log("lib/api.js: ", response);
+      return { error: false, body: response.data.message };
+    })
+    .catch((e) => {
+      return { error: true, errMsg: e.response.data };
+    });
 }
