@@ -34,7 +34,7 @@ export default function setBrowserInfo(state = initialState, action) {
       return { ...state, error: true, errMsg: action.errMsg };
     case REQUEST_LOGOUT:
       sessionStorage.clear();
-      return { ...state, loggedIn: false };
+      return { ...state, loggedIn: false, error: true, errMsg: "" };
     default:
       return state;
   }

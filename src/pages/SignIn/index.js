@@ -44,6 +44,7 @@ const SignInForm = (props) => {
               value={state.email}
               onChange={handleChange}
             />
+            <p className="FormField__Label_Error">{props.errMsg.email}</p>
           </div>
           <div className="FormField">
             <label className="FormField__Label" htmlFor="password">
@@ -58,6 +59,7 @@ const SignInForm = (props) => {
               value={state.password}
               onChange={handleChange}
             />
+            <p className="FormField__Label_Error">{props.errMsg.password}</p>
           </div>
           <div className="FormField">
             <button className="FormField__Button mr-20">Sign In</button>
@@ -93,7 +95,6 @@ const SignInForm = (props) => {
 const mapStateToProps = (state) => ({
   isLoading: state.usersReducer.isLoading,
   loggedIn: state.usersReducer.loggedIn,
-  error: state.usersReducer.error,
   errMsg: state.usersReducer.errMsg,
 });
 

@@ -132,7 +132,6 @@ const SignUpForm = (props) => {
 const mapStateToProps = (state) => ({
   isLoading: state.usersReducer.isLoading,
   loggedIn: state.usersReducer.loggedIn,
-  error: state.usersReducer.error,
   errMsg: state.usersReducer.errMsg,
 });
 
